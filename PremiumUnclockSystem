@@ -1,5 +1,5 @@
 {
-  "premium_users": ["123456789", "987654321"],
+  "premium_users": [],
   "global_premium": {
     "active": false,
     "start_time": "2026-07-30T14:00:00Z",
