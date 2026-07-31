@@ -1,8 +1,8 @@
 {
   "premium_users": [],
   "global_premium": {
-    "active": false,
-    "start_time": "2026-07-30T14:00:00Z",
-    "duration_hours": 24
+    "active": true,
+    "start_time": "2026-07-30T21:06:14.654544",
+    "duration_hours": 48
   }
 }
