@@ -1,5 +1,12 @@
 {
-  "premium_users": [],
+  "premium_users": [
+    {
+      "id": "ORDzpx",
+      "name": "ORDzpx",
+      "remaining_hours": 24,
+      "added_at": "2026-07-31T03:08:42.243797"
+    }
+  ],
   "global_premium": {
     "active": false,
     "start_time": "2026-07-30T21:06:14.654544",
