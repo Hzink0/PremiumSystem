@@ -1,5 +1,12 @@
 {
-  "premium_users": [],
+  "premium_users": [
+    {
+      "id": "thalles_gamer019",
+      "name": "thalles_gamer019",
+      "remaining_hours": 24,
+      "added_at": "2026-07-31T01:55:49.749766"
+    }
+  ],
   "global_premium": {
     "active": false,
     "start_time": "2026-07-30T21:06:14.654544",
