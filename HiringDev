@@ -1,0 +1,236 @@
+Tabs.Recruitment:Section({ Title = "Contratando Devs!" })
+
+Tabs.Recruitment:Paragraph({
+    Title = "Junte-se ao Monarchy Hub",
+    Desc = "Estamos recrutando desenvolvedores para fortalecer nossa equipe. Se você possui experiência com Lua, WindUI ou conhecimentos em técnicas de bypass para fins de pesquisa e desenvolvimento, preencha o formulário.\n\nRequisitos:\n• Conhecimento em Lua e Roblox Studio\n• Saber desenvolver e resolver problemas de forma independente\n• Comprometimento com o projeto\n• Boa comunicação e vontade de aprender\n\nAviso: Enviar formulários falsos, spam ou demonstrar interesse apenas para atrapalhar o processo de recrutamento resultará em blacklist permanente.",
+})
+
+Tabs.Recruitment:Dropdown({
+    Title = "Qual sua especialidade?",
+    Values = {
+        "Bypass Dev",
+        "UI/UX Designer",
+        "Scripting Dev",
+        "ESP/Aimbot Specialist",
+        "Reverse Engineering",
+        "Beta Tester",
+        "Community Manager",
+        "Other"
+    },
+    Value = "Selecione...",
+    Callback = function(v)
+        selectedSpecialty = v
+    end
+})
+
+Tabs.Recruitment:Input({
+    Title = "Qual seu Discord?",
+    PlaceholderText = "Exemplo: @seu_discord ou usuario#1234",
+    Callback = function(text)
+        if #text > 100 then
+            WindUI:Notify({
+                Title = "Limite excedido!",
+                Content = "Seu Discord excede 100 caracteres. Por favor, use um identificador mais curto.",
+                Duration = 4
+            })
+            return
+        end
+        discordTag = text
+    end
+})
+
+Tabs.Recruitment:Input({
+    Title = "Por que quer entrar na equipe?",
+    PlaceholderText = "Escreva sua motivacao (max 1500 caracteres)",
+    Callback = function(text)
+        if #text > 1500 then
+            WindUI:Notify({
+                Title = "Limite excedido!",
+                Content = "Sua motivacao excede 1500 caracteres. Por favor, encurte sua mensagem.",
+                Duration = 4
+            })
+            return
+        end
+        applicationText = text
+    end
+})
+
+Tabs.Recruitment:Input({
+    Title = "Portfolio ou projetos anteriores",
+    PlaceholderText = "Links ou descricao de projetos",
+    Callback = function(text)
+        portfolioText = text
+    end
+})
+
+Tabs.Recruitment:Input({
+    Title = "Disponibilidade (horas por dia)",
+    PlaceholderText = "Ex: 2-3 horas por dia",
+    Callback = function(text)
+        availabilityText = text
+    end
+})
+
+local lastSubmitTime = 0
+local cooldown = 1800
+local submissionCount = 0
+local maxSubmissions = 3
+local rateLimitWindow = 86400
+
+Tabs.Recruitment:Button({
+    Title = "Enviar Candidatura",
+    Icon = "send",
+    Callback = function()
+        local now = os.time()
+        
+        if now - lastSubmitTime < cooldown then
+            local remaining = math.ceil((cooldown - (now - lastSubmitTime)) / 60)
+            WindUI:Notify({
+                Title = "Aguarde!",
+                Content = "Voce so pode enviar a cada 30 minutos. Aguarde " .. remaining .. " minutos.",
+                Duration = 5
+            })
+            return
+        end
+        
+        if submissionCount >= maxSubmissions then
+            WindUI:Notify({
+                Title = "Limite diario atingido!",
+                Content = "Voce ja enviou " .. maxSubmissions .. " candidaturas hoje. Tente novamente amanha.",
+                Duration = 5
+            })
+            return
+        end
+
+        if not selectedSpecialty or selectedSpecialty == "Selecione..." then
+            WindUI:Notify({
+                Title = "Erro!",
+                Content = "Selecione sua especialidade.",
+                Duration = 3
+            })
+            return
+        end
+
+        if not applicationText or #applicationText < 10 then
+            WindUI:Notify({
+                Title = "Erro!",
+                Content = "Escreva uma motivacao valida (min 10 caracteres).",
+                Duration = 3
+            })
+            return
+        end
+        
+        if #applicationText > 1500 then
+            WindUI:Notify({
+                Title = "Erro!",
+                Content = "Motivacao excede 1500 caracteres. Por favor, encurte sua mensagem.",
+                Duration = 4
+            })
+            return
+        end
+
+        if not discordTag or #discordTag < 3 then
+            WindUI:Notify({
+                Title = "Erro!",
+                Content = "Digite seu Discord para contato (min 3 caracteres).",
+                Duration = 3
+            })
+            return
+        end
+        
+        if #discordTag > 100 then
+            WindUI:Notify({
+                Title = "Erro!",
+                Content = "Discord excede 100 caracteres. Use um identificador mais curto.",
+                Duration = 4
+            })
+            return
+        end
+
+        local function sanitizeInput(text)
+            if not text then return "Nao informado" end
+            text = text:gsub("[%c]", " "):gsub("[\r\n]", " "):gsub("```", ""):gsub("%*%*", "")
+            return text:sub(1, 1500)
+        end
+
+        local player = game.Players.LocalPlayer
+        
+        local bannedPlayers = {}
+        if bannedPlayers[player.UserId] then
+            WindUI:Notify({
+                Title = "Acesso negado!",
+                Content = "Voce esta na blacklist do servidor.",
+                Duration = 5
+            })
+            return
+        end
+        
+        local message = string.format(
+            "**Nova Candidatura!**\n" ..
+            "**Nome:** %s\n" ..
+            "**User ID:** %s\n" ..
+            "**Discord:** %s\n" ..
+            "**Especialidade:** %s\n" ..
+            "**Motivacao:** %s\n" ..
+            "**Portfolio:** %s\n" ..
+            "**Disponibilidade:** %s",
+            sanitizeInput(player.Name),
+            player.UserId,
+            sanitizeInput(discordTag),
+            sanitizeInput(selectedSpecialty),
+            sanitizeInput(applicationText),
+            sanitizeInput(portfolioText),
+            sanitizeInput(availabilityText)
+        )
+
+        if #message > 2000 then
+            message = message:sub(1, 1997) .. "..."
+        end
+
+        local webhookUrl = "https://discord.com/api/webhooks/1533283530963157214/4GFhVv-X-HQcGzy4b4U5vAeybraVDw1KswNcnqwNioQNqgQlwWKqJTKjY6YBXnJT6-Vj"
+
+        task.spawn(function()
+            local success, err = pcall(function()
+                local request = syn and syn.request or http_request or request
+                if not request then
+                    error("Executor nao suporta requisicoes HTTP!")
+                end
+
+                local response = request({
+                    Url = webhookUrl,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = game:GetService("HttpService"):JSONEncode({
+                        content = message
+                    })
+                })
+                
+                if response and response.StatusCode and response.StatusCode ~= 204 and response.StatusCode ~= 200 then
+                    error("Webhook retornou erro: " .. tostring(response.StatusCode))
+                end
+            end)
+
+            if success then
+                lastSubmitTime = os.time()
+                submissionCount = submissionCount + 1
+                
+                task.wait(rateLimitWindow)
+                submissionCount = 0
+                
+                WindUI:Notify({
+                    Title = "Enviado!",
+                    Content = "Sua candidatura foi enviada! Entraremos em contato pelo Discord em breve.",
+                    Duration = 5
+                })
+            else
+                WindUI:Notify({
+                    Title = "Erro!",
+                    Content = "Falha ao enviar candidatura: " .. tostring(err),
+                    Duration = 5
+                })
+            end
+        end)
+    end
+})
